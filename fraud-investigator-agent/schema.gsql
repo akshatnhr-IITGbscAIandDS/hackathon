@@ -1,0 +1,31 @@
+// GSQL Fraud Schema: IEEE-CIS Transaction & Entity Mapping
+CREATE VERTEX User (PRIMARY_ID id STRING, risk_score DOUBLE, is_flagged BOOL) WITH STATS="OUTDEGREE_BY_EDGETYPE";
+CREATE VERTEX Account (PRIMARY_ID id STRING, balance DOUBLE, account_type STRING);
+CREATE VERTEX Device (PRIMARY_ID id STRING, device_type STRING, fingerprint STRING);
+CREATE VERTEX IPAddress (PRIMARY_ID id STRING, country STRING, proxy_detected BOOL);
+CREATE VERTEX Transaction (PRIMARY_ID id STRING, amount DOUBLE, timestamp INT, is_fraud BOOL);
+
+// Edge definitions
+CREATE DIRECTED EDGE OWNS_ACCOUNT (FROM User, TO Account);
+CREATE DIRECTED EDGE TRANSFERRED_TO (FROM Account, TO Account, amount DOUBLE, timestamp INT);
+CREATE DIRECTED EDGE USED_DEVICE (FROM User, TO Device, last_seen INT);
+CREATE DIRECTED EDGE ACCESSED_FROM (FROM User, TO IPAddress, last_seen INT);
+CREATE DIRECTED EDGE EXECUTED (FROM Account, TO Transaction);
+
+CREATE GRAPH FraudGraph(User, Account, Device, IPAddress, Transaction, OWNS_ACCOUNT, TRANSFERRED_TO, USED_DEVICE, ACCESSED_FROM, EXECUTED);
+
+// Query: Detect Shared Device or IP Rings (Syndicate Detection)
+CREATE QUERY find_syndicate_cluster(VERTEX<User> seed_user) FOR GRAPH FraudGraph RETURNS (SetAccum<VERTEX>) {
+    SetAccum<VERTEX> @@visited_entities;
+    Start = {seed_user};
+
+    // Hop 1: Find all shared IPs and Devices
+    SharedInfrastructure = SELECT t FROM Start:s -((USED_DEVICE|ACCESSED_FROM):e)- (Device|IPAddress):t;
+
+    // Hop 2: Find all other users sharing this infrastructure
+    ConnectedUsers = SELECT u FROM SharedInfrastructure:s -((USED_DEVICE|ACCESSED_FROM):e)- User:u
+                     WHERE u != seed_user
+                     ACCUM @@visited_entities += u;
+
+    PRINT ConnectedUsers;
+}

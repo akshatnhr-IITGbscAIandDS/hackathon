@@ -1,0 +1,16 @@
+[
+  {
+    "case_id": "CASE-2026-081",
+    "target_user": "usr_mule_303",
+    "target_account": "acc_303",
+    "initial_risk_score": 0.89,
+    "trigger_reason": "Rapid successive inflows and immediate outbound layering"
+  },
+  {
+    "case_id": "CASE-2026-082",
+    "target_user": "usr_victim_101",
+    "target_account": "acc_101",
+    "initial_risk_score": 0.52,
+    "trigger_reason": "Login from unfamiliar subnet with small balance check"
+  }
+]
