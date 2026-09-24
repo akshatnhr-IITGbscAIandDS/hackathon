@@ -1,0 +1,17 @@
+{
+  "case_id": "HHG-019",
+  "target_user": "usr_victim_119",
+  "detected_violations": [
+    "RAPID_LAYERING_STRUCTURING"
+  ],
+  "uncertainty_level": "MODERATE",
+  "recommended_action": "CLOSE_CASE_FALSE_POSITIVE",
+  "requires_human_approval": false,
+  "execution_verdict": "ACTION_APPLIED: DISMISSED_NO_FURTHER_ACTION",
+  "audit_log": [
+    "Step 1 [Trigger Intake]: Opened case HHG-019",
+    "Step 2 [Graph Evidence]: Found connected transaction nodes",
+    "Step 3 [Policy Check]: Evaluated risk threshold rules",
+    "Step 4 [Execution]: Executed automated action dispatch"
+  ]
+}
